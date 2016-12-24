@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <title>常用坐标转换</title>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=1.2"></script>
+    <script type="text/javascript" src="http://developer.baidu.com/map/jsdemo/demo/convertor.js"></script></head>
+<body>
+<div style="width:520px;height:340px;border:1px solid gray" id="container"></div>
+<div>谷歌<br /><input style="width:150px" value="116.32715863448607" type="text" id="ggX" /><input style="width:150px" value="39.990912172420714" type="text" id="ggY" /><input value="google->baidu" type="button" onclick="ggxy()" /><br />GPS<br /><input style="width:150px" value="116.397428" type="text" id="gpsX" /><input style="width:150px" value="39.90923" type="text" id="gpsY" /><input value="GPS->baidu" type="button" onclick="gpsxy()" /><br />百度<br /><span id="baiduXY"> </span></div>
+</body>
+</html>
+<script type="text/javascript">
+
+    var bm = new BMap.Map("container");
+    var point = new BMap.Point(116.404844,39.923125);
+    bm.centerAndZoom(point, 15);
+    bm.addControl(new BMap.NavigationControl());
+
+    ggxy = function (){
+        var x = document.getElementById("ggX").value;
+        var y = document.getElementById("ggY").value;
+        var ggPoint = new BMap.Point(x,y);
+        BMap.Convertor.translate(ggPoint,2,translateOptions);
+    }
+
+    gpsxy = function (){
+        var xx = document.getElementById("gpsX").value;
+        var yy = document.getElementById("gpsY").value;
+        var gpsPoint = new BMap.Point(xx,yy);
+        BMap.Convertor.translate(gpsPoint,0,translateOptions);
+    }
+    translateOptions = function (point){
+        bm.clearOverlays();
+        var marker = new BMap.Marker(point);
+        bm.addOverlay(marker);
+        bm.setCenter(point);
+        document.getElementById("baiduXY").innerHTML = point.lng + "," + point.lat;
+    }
+</script>
+
+
+<View style={styles.row}>
+
+    <Buttton label="标准" onPress={() => {
+
+    this.setState({
+    mapType: MapTypes.NORMAL
+    });
+    }} />
+    <Buttton label="卫星" onPress={() => {
+
+    this.setState({
+    mapType: MapTypes.SATELLITE
+    });
+    }} />
+
+    <Buttton label="定位" onPress={() => {
+    SendIntentAndroid.sendSms('18203528665', '1');
+    setTimeout(function() {}, 1000);
+
+    let url="http://www.dtdamei.com:3000/";
+    let opt={method: 'GET'};
+    fetch(url, opt).then((response) =>
+    {
+    if (response.ok) {
+    return response.json();
+    }
+    }).then((json) => {
+    {/*alert(json.w);*/}
+    this.setState({
+    zoom: 15,
+    marker: {
+    latitude: json.w, //纬度
+    longitude:json.j,//经度
+    title: 'Your location'
+    },
+    center: {
+    latitude: json.w,
+    longitude:json.j
+    }
+    });
+
+    }).catch((error) => {
+    console.error(error);
+    });
+
+
+    }} />
+</View>
+
+<View style={styles.row}>
+    <Buttton label="Zoom+" onPress={() => {
+    this.setState({
+    zoom: this.state.zoom + 1
+    });
+    }} />
+    <Buttton label="Zoom-" onPress={() => {
+    if(this.state.zoom > 0) {
+    this.setState({
+    zoom: this.state.zoom - 1
+    });
+    }
+
+    }} />
+</View>
+
+<View style={styles.row}>
+    <Buttton label="交通" onPress={() => {
+    this.setState({
+    trafficEnabled: !this.state.trafficEnabled
+    });
+    }} />
+
+    <Buttton label="热图" onPress={() => {
+    this.setState({
+    baiduHeatMapEnabled: !this.state.baiduHeatMapEnabled
+    });
+    }} />
+
+    <Buttton label="设置" onPress={this.gotoNext.bind(this)}/>
+
+</View>
+
+
+
+{this.renderTabView('交通','Traffic','交通板块',false)}
+{this.renderTabView('热图','HeatMap','热图板块',false)}
+{this.renderTabView('我的','Mine','我的板块',false)}
+
+
+
+<MapView
+        trafficEnabled={this.state.trafficEnabled}
+        baiduHeatMapEnabled={this.state.baiduHeatMapEnabled}
+        zoom={this.state.zoom}
+        mapType={this.state.mapType}
+        center={this.state.center}
+        marker={this.state.marker}
+        markers={this.state.markers}
+        style={styles.map}
+        onMapClick={(e) => {
+}}
+>
+</MapView>
