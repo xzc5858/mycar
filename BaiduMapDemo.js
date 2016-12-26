@@ -103,7 +103,7 @@ export default class BaiduMapDemo extends Component {
     SendIntentAndroid.sendSms('18203528665', '1');
     setTimeout(function() {}, 1000);
 
-    let url="http://www.dtdamei.com:3000/";
+    let url="http://";
     let opt={method: 'GET'};
     fetch(url, opt).then((response) =>
     {
